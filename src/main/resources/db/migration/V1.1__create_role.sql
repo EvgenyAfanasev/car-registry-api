@@ -1,0 +1,1 @@
+CREATE TYPE application_role AS enum ('USER', 'ADMIN');

@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  postgres: 
+    image: postgres:14-alpine
+    container_name: postgres
+    environment:
+      - POSTGRES_DB=registry
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+  redis:
+    image: redis:6.2.6-alpine
+    container_name: redis
+    command: redis-server --requirepass password
+    ports:
+      - "6379:6379"
+  registry:
+    build: .
+    ports:
+      - "8085:6000"
+    environment:
+      - REGISTRY_DB_URL=jdbc:postgresql://postgres:5432/registry
+      - REGISTRY_DB_USERNAME=postgres
+      - REGISTRY_DB_PASSWORD=postgres
+      - REGISTRY_DB_POOL_SIZE=50
+      - REGISTRY_REDIS_URL=redis:6379
+      - REGISTRY_REDIS_PASSWORD=password
+      - REGISTRY_AUTH_SECRET=secret
+      - REGISTRY_AUTH_EXPIRATION=1200
+      - REGISTRY_AUTH_SESSION_EXPIRATION=6000
+    depends_on:
+      - postgres
+      - redis
