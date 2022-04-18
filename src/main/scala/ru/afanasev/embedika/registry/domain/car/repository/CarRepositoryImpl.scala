@@ -8,6 +8,7 @@ import doobie.util.fragments.whereAndOpt
 import doobie.implicits._
 import doobie.implicits.javatime._
 
+import ru.afanasev.embedika.registry.utils.DoobieUtils.orderByOpt
 import ru.afanasev.embedika.registry.domain.car.repository.model.CarEntity._
 import ru.afanasev.embedika.registry.domain.Page
 
@@ -76,7 +77,7 @@ class CarRepositoryImpl[F[_]: Async](
           optionYear.map(y => fr"year = $y"),
           optionNumber.map(n => fr"number LIKE %$n%")
         ) ++
-        fr" ORDER BY ${page.ordering}" ++
+        orderByOpt(page.orderBy.map(ord => s"${ord.by} ${ord.method}")) ++
         fr" LIMIT ${page.limit}  OFFSET ${page.offset}")
         .query[ExistingCarEntity]
   }

@@ -13,6 +13,7 @@ import ru.afanasev.embedika.registry.domain.Page
 import ru.afanasev.embedika.registry.domain.history.repository.model.HistoryEntity._
 import ru.afanasev.embedika.registry.domain.history.repository.model.HistoryResult.Result
 import ru.afanasev.embedika.registry.domain.history.repository.model.HistoryType.Type
+import ru.afanasev.embedika.registry.utils.DoobieUtils.orderByOpt
 
 import java.time.LocalDateTime
 
@@ -29,12 +30,12 @@ class HistoryRepositoryImpl[F[_]: Async](
         historyType: Option[Type]
     ) =
       (fr"SELECT * FROM history.history " ++
-        whereAndOpt {
-          userId.map(ui => fr"user_id = $ui")
-          result.map(r => fr"result = $r")
+        whereAndOpt(
+          userId.map(ui => fr"user_id = $ui"),
+          result.map(r => fr"result = $r"),
           historyType.map(ht => fr"history_type = $ht")
-        } ++
-        fr"ORDER BY ${page.ordering}" ++
+        ) ++ 
+        orderByOpt(page.orderBy.map(ord => s"${ord.by} ${ord.method}")) ++
         fr" OFFSET ${page.offset} LIMIT ${page.limit}").query[ExistingHistoryEntity]
 
     def save(history: NewHistoryEntity) = sql"""

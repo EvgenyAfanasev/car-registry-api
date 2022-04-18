@@ -22,7 +22,7 @@ class HistoryService[F[_]: Async](
   ) =
     historyRepoistory
       .findAll(page, userId, result, historyType)
-      .map(_.map(HistoryResponseDto.fromEntity(_)))
+      .map(_.map(HistoryResponseDto.fromEntity))
 
   def save(
       historyType: Type,
@@ -32,7 +32,7 @@ class HistoryService[F[_]: Async](
   ) =
     historyRepoistory
       .save(NewHistoryEntity(historyType, userId, result, executionTime))
-      .map(HistoryResponseDto.fromEntity(_))
+      .map(HistoryResponseDto.fromEntity)
 
 }
 

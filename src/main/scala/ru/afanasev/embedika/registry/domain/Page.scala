@@ -4,6 +4,8 @@ import cats.implicits._
 
 import org.http4s.dsl.impl.OptionalQueryParamDecoderMatcher
 import org.http4s.QueryParamDecoder
+import doobie.util.Get
+import doobie.util.Put
 
 object OrderByQueryParam extends OptionalQueryParamDecoderMatcher[String]("orderBy")
 
@@ -17,12 +19,7 @@ final case class Page(
     orderBy: Option[Ordering],
     limit: Int = 10,
     offset: Int = 0
-) {
-  def ordering =
-    orderBy
-      .map(orderBy => s"${orderBy.by} ${orderBy.method}")
-      .getOrElse("id DESC")
-}
+)
 
 object Page {
   def create(
@@ -47,4 +44,7 @@ object Methods extends Enumeration {
 
   val ASC  = Value("ASC")
   val DESC = Value("DESC")
+
+  implicit val methodPut: Put[Method] = Put[String].contramap(_.toString)
+  implicit val methodget: Get[Method] = Get[String].map(Methods.withName)
 }
